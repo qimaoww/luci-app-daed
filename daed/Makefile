@@ -6,8 +6,8 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=daed
 PKG_VERSION:=2025.12.15
-DAED_VERSION:=daed-b14dae8
-WING_VERSION:=wing-6bb6a31
+DAED_VERSION:=daed-404c453
+WING_VERSION:=wing-1155a9d
 CORE_VERSION:=core-7e67e31
 WING_HASH_SHORT:=$(shell echo $(WING_VERSION) | cut -d- -f2)
 CORE_HASH_SHORT:=$(shell echo $(CORE_VERSION) | cut -d- -f2)
@@ -15,7 +15,7 @@ PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=b14dae8246dda1211c75a78b3fa33a46e5aaaa3e
+PKG_SOURCE_VERSION:=404c45386b5e792cd944aa6a5ea52d1540ef20b6
 PKG_SOURCE_URL:=https://github.com/qimaoww/daed.git
 PKG_MIRROR_HASH:=skip
 
@@ -88,6 +88,8 @@ define Build/Prepare
 		popd ; \
 		pushd $(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)/wing ; \
 		go mod tidy ; \
+		mkdir -p $(PKG_BUILD_DIR)/.go_work/build/src/github.com/qimaoww ; \
+		ln -sfT $(PKG_BUILD_DIR) $(PKG_BUILD_DIR)/.go_work/build/src/github.com/qimaoww/dae-wing ; \
 		popd ; \
 		mkdir -p $(PKG_BUILD_DIR)/.node_tmp ; \
 		mkdir -p $(PKG_BUILD_DIR)/.node_tmp/config ; \
@@ -101,14 +103,14 @@ define Build/Prepare
 		popd ; \
 		mkdir -p $(PKG_BUILD_DIR)/webrender/web ; \
 		cp -rf $(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)/apps/web/dist/* $(PKG_BUILD_DIR)/webrender/web ; \
-		find $(PKG_BUILD_DIR)/webrender/web -type f -size +4k ! -name "*.gz" ! -name "*.woff"  ! -name "*.woff2" -exec sh -c '\
+		find $(PKG_BUILD_DIR)/webrender/web -type f -size +4k ! -name "*.gz" ! -name "*.woff" ! -name "*.woff2" -exec sh -c '\
 			gzip -9 -k "{}"; \
-			if [ "$$$$(stat -c %s {})" -lt "$$$$(stat -c %s {}.gz)" ]; then \
+			if [ "$$$$$$(stat -c %s {})" -lt "$$$$$$(stat -c %s {}.gz)" ]; then \
 				rm {}.gz; \
 			else \
 				rm {}; \
-			fi' \
-		";" ; \
+			fi \
+		' ";" ; \
 		rm -rf $(PKG_BUILD_DIR)/.node_tmp ; \
 	)
 endef
